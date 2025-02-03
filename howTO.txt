@@ -1,0 +1,37 @@
+Code for paper "Global observations of land-atmosphere interactions during flash drought" by Harris et al. 2025,
+submitted to Hydrology and Earth System Science. 
+
+Figure 1 (global map of events):
+Save array of events using subseasonal_drought_development_id.py
+Requires pre-saved:
+rolling_pentad_mean_dir = '/prj/nceo/bethar/SUBDROUGHT/soil_moisture_running_mean_5d_centred/'
+rolling_30d_mean_dir = '/prj/nceo/bethar/SUBDROUGHT/soil_moisture_running_mean_30d_before'
+rolling_minimum_after_dir = '/prj/nceo/bethar/SUBDROUGHT/soil_moisture_running_pentad_min_20d_after/'
+rolling_t2m_min_dir = '/prj/nceo/bethar/SUBDROUGHT/t2m_running_pentad_min_61d/'
+which can all be saved from save_rolling_pentad_means_mins.py
+This needs standardised anomalies of ESA CCI SM (produced by save_global_standardised_anomalies.py)
+
+Figure S1 (map of top 4 land covers):
+map_top_land_covers.py
+
+Figure 2 (growing season composites of surface energy budget):
+Run composites_by_cci_land_cover.py to save the composite data.
+Also run n_weighted_composites_by_cci_land_cover.py to get composite data for Delta T with MODIS Aqua LST.
+Then plot_cci_land_cover_composites.py (also makes Supp Fig 2)
+
+Figure 3 (composites stratified by SHFmax):
+Split events into quartiles using drought_events_stratified_by_max_shf.py (must be done separately for each land cover)
+Then save composite data with composites_by_cci_land_cover_stratified_by_max_shf.py
+Plus n_weighted_composites_by_cci_land_cover_stratified_by_max_shf.py to get Delta T with MODIS Aqua LST
+Then plot_cci_land_cover_composites_stratified_by_max_SHF.py
+
+Figure 4 (sensitivities):
+Save maps of sensitivity at 2.5deg using sensitivity_to_ssm_change.py
+Then produce figure with sensitivity_plots.py
+
+Figure 5 (regional SHF feedbacks to T2m):
+Produce table of flash drought pixel events using save_flash_drought_catalogue.py
+Then add precursor and maximum anomalies as extra columns in the catalogue using add_event_anomalies_to_catalogue.py
+Make KDE plots with maximum_temperature_predictors.py. This also computes the statistics comparing Q1 vs Q4 quoted in paper
+Note maximum_temperature_predictors.py requires africa_seasonal_maps.py to plot map of regions and handle seasonality
+Significance (Figures S5/7/8) is assessed in bootstrap_95ci_all_seasons.py
