@@ -167,7 +167,7 @@ def save_global_composite(variable_name, std_anom_dir, final_save_name, land_cov
                         chunks={"time": -1, "latitude": 40, "longitude": 40}, parallel=True)
     anom['lst-t2m'] = anom['lst-t2m'].where(anom['n']>= 625./5.)
     anom['n'] = xr.where(anom['n']>= 625./5., anom['n'], 0)
-    drought_events = xr.open_dataset('/prj/nceo/bethar/SUBDROUGHT/HESS_paper/subseasonal_drought_development_events_mask_frozen_peak_growing_season.nc')
+    drought_events = xr.open_dataset('/prj/nceo/bethar/SUBDROUGHT/HESS_paper/subseasonal_drought_development_events_mask_frozen.nc')
     earliest_common_date = max(anom.time.data[0], drought_events.time.data[0])
     latest_common_date = min(anom.time.data[-1], drought_events.time.data[-1])
     anom = anom.sel(time=slice(earliest_common_date, latest_common_date))
@@ -178,7 +178,7 @@ def save_global_composite(variable_name, std_anom_dir, final_save_name, land_cov
 def save_single_composite_for_land_cover(variable_abbrev, land_cover='all'):
     variable_name = netcdf_variable_names[variable_abbrev]
     std_anom_dir = std_anom_directories[variable_abbrev]
-    final_save_name = f'/prj/nceo/bethar/SUBDROUGHT/HESS_paper/ESA_CCI_land_cover_composites/peak_growing_season/{variable_abbrev}_n-weighted_composite_{land_cover}_mask20pct.csv'
+    final_save_name = f'/prj/nceo/bethar/SUBDROUGHT/HESS_paper/ESA_CCI_land_cover_composites/all_seasons/{variable_abbrev}_n-weighted_composite_{land_cover}_mask20pct.csv'
     file_already_exists = os.path.isfile(final_save_name)
     if file_already_exists:
         print(f'Composite already saved for {variable_abbrev} in {land_cover}. Skipping.')

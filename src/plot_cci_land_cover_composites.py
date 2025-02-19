@@ -21,8 +21,8 @@ variable_legend_labels = {'ssm_pentad_means': 'surface soil moisture',
                          'evap': 'latent heat flux',
                          'lst_mw': 'LST (MW)',
                          'precip': 'precipitation (IMERG)',
-                         'tdiff_mw_18': 'sensible heat flux (MW)',
-                         'tdiff_aqua': 'sensible heat flux (Aqua)',
+                         'tdiff_mw_18': '$\Delta T$ (MW)',
+                         'tdiff_aqua': '$\Delta T$ (MODIS Aqua)',
                          'vimd_mean': 'moisture divergence',
                          'vimd_max': 'vimd_max',
                          'rad': 'net surface radiation ($\\mathrm{R_n}$)',
@@ -74,16 +74,16 @@ def plot_composites_single_land_cover(land_cover, variables_to_plot, ax=None, sh
     ax.axvline(color='gray', linewidth=0.5)
     for v in variables_to_plot:
         if v == 'tdiff_aqua':
-            composite = pd.read_csv(f'/prj/nceo/bethar/SUBDROUGHT/HESS_paper/ESA_CCI_land_cover_composites/peak_growing_season/{v}_n-weighted_composite_{land_cover}_mask20pct.csv')   
+            composite = pd.read_csv(f'/prj/nceo/bethar/SUBDROUGHT/HESS_paper/ESA_CCI_land_cover_composites/all_seasons/{v}_n-weighted_composite_{land_cover}_mask20pct.csv')   
         else:
-            composite = pd.read_csv(f'/prj/nceo/bethar/SUBDROUGHT/HESS_paper/ESA_CCI_land_cover_composites/peak_growing_season/{v}_composite_{land_cover}.csv')
+            composite = pd.read_csv(f'/prj/nceo/bethar/SUBDROUGHT/HESS_paper/ESA_CCI_land_cover_composites/all_seasons/{v}_composite_{land_cover}.csv')
         if v == 'sw_down':
             linestyle = '--'
         else:
             linestyle = '-'
         ax.plot(composite['days_since_drought_start'][60:-60], composite['composite_mean'][60:-60], 
                 label=variable_legend_labels[v], color=variable_colours[v], linewidth=2, linestyle=linestyle)
-    n = pd.read_csv(f'/prj/nceo/bethar/SUBDROUGHT/HESS_paper/ESA_CCI_land_cover_composites/peak_growing_season/ssm_pentad_means_composite_{land_cover}.csv')['composite_n'][60:-60]
+    n = pd.read_csv(f'/prj/nceo/bethar/SUBDROUGHT/HESS_paper/ESA_CCI_land_cover_composites/all_seasons/ssm_pentad_means_composite_{land_cover}.csv')['composite_n'][60:-60]
     # ax.text(0.03, 0.9, f'{int(n.max())} events', fontsize=13, transform=ax.transAxes)
     ax.text(0.03, 0.03, f'max(n) = {int(n.max())}', fontsize=13, transform=ax.transAxes)
     if legend:
@@ -122,5 +122,5 @@ def plot_composites_top4_land_covers(variables_to_plot, save_name):
     
 
 if __name__ == '__main__':
-    plot_composites_top4_land_covers(['ssm_pentad_means', 'tdiff_aqua', 'tdiff_mw_18', 'rad', 'evap'], save_name='top_4_lc_SEB_main_fig_mask20pct')
-    plot_composites_top4_land_covers(['rad', 'sw_down', 'precip', 'wind_speed'], save_name='top_4_lc_SEB_suppinfo')
+    plot_composites_top4_land_covers(['ssm_pentad_means', 'tdiff_aqua', 'tdiff_mw_18', 'rad', 'evap'], save_name='top_4_lc_SEB_main_fig_mask20pct_GLEAMv42_ALLSEASONS_newlabels')
+    plot_composites_top4_land_covers(['rad', 'sw_down', 'precip', 'wind_speed'], save_name='top_4_lc_SEB_suppinfo_ALLSEASONS')

@@ -48,7 +48,7 @@ std_anom_directories = {'ssm_pentad_means': "/prj/nceo/bethar/SUBDROUGHT/soil_mo
                         'rzsm_cci_10cm': "/prj/nceo/bethar/SUBDROUGHT/ESA_CCI_RZSM_standardised_anomalies/10cm/",
                         'rzsm_ERA5_7cm': "/prj/nceo/bethar/SUBDROUGHT/ERA5_soil_moisture_climatological_anomalies/swvl1/",
                         't2m': "/prj/nceo/bethar/SUBDROUGHT/T2m_standardised_anomalies/",
-                        'evap': "/prj/nceo/bethar/SUBDROUGHT/GLEAM_E_standardised_anomalies/",
+                        'evap': "/prj/nceo/bethar/SUBDROUGHT/GLEAM_v42a_E_standardised_anomalies/",
                         'lst_mw': "/prj/nceo/bethar/SUBDROUGHT/MW-LST_standardised_anomalies/",
                         'lst_aqua': "/prj/nceo/bethar/ESA_CCI_LST/MODIS_Aqua_LST_std_anoms/",
                         'precip': "/prj/nceo/bethar/SUBDROUGHT/precip_standardised_anomalies/",
@@ -246,7 +246,7 @@ def save_global_composite(variable_name, std_anom_dir, final_save_name, land_cov
         anom = anom.sel(lat=slice(-60, 80))
     except:
         anom = anom.sel(latitude=slice(-60, 80))
-    drought_events = xr.open_dataset('/prj/nceo/bethar/SUBDROUGHT/HESS_paper/subseasonal_drought_development_events_mask_frozen_peak_growing_season.nc')
+    drought_events = xr.open_dataset('/prj/nceo/bethar/SUBDROUGHT/HESS_paper/subseasonal_drought_development_events_mask_frozen.nc')
     earliest_common_date = max(anom.time.data[0], drought_events.time.data[0])
     latest_common_date = min(anom.time.data[-1], drought_events.time.data[-1])
     anom = anom.sel(time=slice(earliest_common_date, latest_common_date))
@@ -257,7 +257,7 @@ def save_global_composite(variable_name, std_anom_dir, final_save_name, land_cov
 def save_single_composite_for_land_cover(variable_abbrev, land_cover='all'):
     variable_name = netcdf_variable_names[variable_abbrev]
     std_anom_dir = std_anom_directories[variable_abbrev]
-    final_save_name = f'/prj/nceo/bethar/SUBDROUGHT/HESS_paper/ESA_CCI_land_cover_composites/peak_growing_season/{variable_abbrev}_composite_{land_cover}.csv'
+    final_save_name = f'/prj/nceo/bethar/SUBDROUGHT/HESS_paper/ESA_CCI_land_cover_composites/all_seasons/{variable_abbrev}_composite_{land_cover}.csv'
     file_already_exists = os.path.isfile(final_save_name)
     if file_already_exists:
         print(f'Composite already saved for {variable_abbrev} in {land_cover}. Skipping.')
