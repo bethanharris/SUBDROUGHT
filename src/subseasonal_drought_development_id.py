@@ -100,14 +100,14 @@ def plot_n_map():
     sm_mask = xr.open_dataset("/prj/nceo/bethar/VODCA_global/ESA-CCI-SOILMOISTURE-LAND_AND_RAINFOREST_MASK-fv04.2.nc")
     sm_mask = sm_mask.isel(lat=slice(None, None, -1))
     sm_mask = sm_mask.sel(lat=slice(-60, 80))
-    no_sm = np.logical_or(~(sm_mask.land.data), sm_mask.rainforest.data)
+    no_sm = np.logical_or(sm_mask.land.data==0, sm_mask.rainforest.data==1)
     n_masked = np.copy(n)
     n_masked[no_sm] = -999
 
     projection = ccrs.PlateCarree()
     fig = plt.figure(figsize=(6, 4.5)) 
     ax = plt.axes(projection=projection)
-    p = plt.pcolormesh(lon_bounds, lat_bounds, n_masked, cmap=cmap, vmin=0, vmax=10, transform=ccrs.PlateCarree())
+    p = plt.pcolormesh(lon_bounds, lat_bounds, n_masked, cmap=cmap, vmin=0, vmax=10, transform=ccrs.PlateCarree(), rasterized=True)
     cax = fig.add_axes([ax.get_position().x0, ax.get_position().y0-0.12, ax.get_position().width, 0.03])
     cbar = fig.colorbar(p, orientation='horizontal', cax=cax, aspect=40, pad=0.12, extend='max')
     cbar.set_ticks(np.arange(0, 11, 2))
@@ -124,6 +124,7 @@ def plot_n_map():
     ax.tick_params(labelsize=14)
     ax.tick_params(axis='x', pad=5)
     plt.savefig('../figures/number_events_esa_cci_sm_mask.png', dpi=800, bbox_inches='tight')
+    plt.savefig('../figures/number_events_esa_cci_sm_mask.pdf', dpi=800, bbox_inches='tight')
     plt.close()
 
 
