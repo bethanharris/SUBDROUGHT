@@ -14,7 +14,7 @@ SCRATCH_DIR = '/prj/nceo/bethar/SUBDROUGHT/HESS_paper/scratch/'
 def rechunk_global_files(data_directory, variable_name, min_year=2000, max_year=2020):
     # variable_name should be what the xarray DataArray name is
     for year in tqdm(range(min_year, max_year+1), desc=f'Rechunking {variable_name} files'):
-        if os.path.isfile(f'SCRATCH_DIR/rechunked_{variable_name}_{year}.nc'):
+        if os.path.isfile(f'{SCRATCH_DIR}/rechunked_{variable_name}_{year}.nc'):
             print(f'Rechunked {variable_name} already saved for {year}, skipping')
         else:
             year_files = [f for f in os.listdir(data_directory) if (str(year) in f and f.endswith('.nc'))]
@@ -45,6 +45,10 @@ def rechunk_global_files(data_directory, variable_name, min_year=2000, max_year=
                 global_data = global_data.isel(lat=slice(None, None, -1))
                 global_data[variable_name].attrs['standard_name'] = 'water_evapotranspiration_flux'
                 global_data = global_data.where(global_data[variable_name] < 1e10)
+            # elif variable_name == 'E' or variable_name == 'SMrz':
+            #     global_data = global_data.where(global_data[variable_name] < 1e10)
+            #     global_data = global_data.rename({'latitude': 'lat'})
+            #     global_data = global_data.rename({'longitude': 'lon'})
             elif variable_name == 'net_surface_rad':
                 global_data = global_data.where(global_data[variable_name] < 1e10)
             elif variable_name == 'downwelling_surface_sw_rad':
@@ -127,13 +131,13 @@ def rechunk_global_files(data_directory, variable_name, min_year=2000, max_year=
                 global_data = global_data.where(global_data[variable_name] > 0.)
                 global_data = global_data.transpose('time', 'lat', 'lon')
             data = global_data.sel(lat=slice(-60, 80), lon=slice(-180, 180))
-            data.astype(np.float32).to_netcdf(f'SCRATCH_DIRrechunked_{variable_name}_{year}.nc',
+            data.astype(np.float32).to_netcdf(f'{SCRATCH_DIR}/rechunked_{variable_name}_{year}.nc',
                                                 encoding={variable_name: {'contiguous': False, 
                                                 'chunksizes': (days_in_year, 40, 40)}})
 
 
 def read_rechunked_global_data(variable_name, min_year=2000, max_year=2020):
-    rechunked_files = [f'SCRATCH_DIR/rechunked_{variable_name}_{year}.nc' for year in range(min_year, max_year+1)]
+    rechunked_files = [f'{SCRATCH_DIR}/rechunked_{variable_name}_{year}.nc' for year in range(min_year, max_year+1)]
     global_data = xr.open_mfdataset(rechunked_files, chunks={"time": -1, "lat": 40, "lon": 40}, parallel=True)
     if variable_name == 'sm':
         global_data = global_data.where(global_data<1e6)
@@ -217,7 +221,7 @@ def save_standardised_anomalies(data_directory, variable_name, tile_scratch_dir,
 def save_soil_moisture_standardised_anomalies():
     variable_name = 'sm'
     data_directory = '/prj/swift/ESA_CCI_SM/year_files_v8.1_combined_GLOBAL'
-    tile_scratch_dir = 'SCRATCH_DIR/dask_tiling_workspace'
+    tile_scratch_dir = f'{SCRATCH_DIR}/dask_tiling_workspace'
     final_save_name = '/prj/nceo/bethar/SUBDROUGHT/soil_moisture_standardised_anomalies/ESA-CCI-SM_standardised_anomaly.nc'
     number_lat_tiles = 2
     number_lon_tiles = 4
@@ -228,7 +232,7 @@ def save_soil_moisture_standardised_anomalies():
 def save_CCI_RZSM_standardised_anomalies():
     variable_name = 'rzsm_10cm'
     data_directory = '/prj/nceo/bethar/ESA_CCI_RZSM/10cm/'
-    tile_scratch_dir = 'SCRATCH_DIR/dask_tiling_workspace'
+    tile_scratch_dir = f'{SCRATCH_DIR}/dask_tiling_workspace'
     final_save_name = '/prj/nceo/bethar/SUBDROUGHT/ESA_CCI_RZSM_standardised_anomalies/10cm/ESA-CCI-RZSM_10cm_standardised_anomaly.nc'
     number_lat_tiles = 2
     number_lon_tiles = 4
@@ -239,7 +243,7 @@ def save_CCI_RZSM_standardised_anomalies():
 def save_ERA5_SSM_standardised_anomalies():
     variable_name = 'swvl1'
     data_directory = '/prj/nceo/bethar/ERA5/swvl1/'
-    tile_scratch_dir = 'SCRATCH_DIR/dask_tiling_workspace'
+    tile_scratch_dir = f'{SCRATCH_DIR}/dask_tiling_workspace'
     final_save_name = '/prj/nceo/bethar/SUBDROUGHT/ERA5_soil_moisture_standardised_anomalies/swvl1/ERA5_swvl1_standardised_anomaly.nc'
     number_lat_tiles = 2
     number_lon_tiles = 4
@@ -250,7 +254,7 @@ def save_ERA5_SSM_standardised_anomalies():
 def save_VOD_standardised_anomalies():
     variable_name = 'vod'
     data_directory = '/prj/nceo/bethar/VODCA_global/filtered/filtered_surface_water/X-band'
-    tile_scratch_dir = 'SCRATCH_DIR/dask_tiling_workspace'
+    tile_scratch_dir = f'{SCRATCH_DIR}/dask_tiling_workspace'
     final_save_name = '/prj/nceo/bethar/SUBDROUGHT/VOD_standardised_anomalies/VODCA_X-band_standardised_anomaly.nc'
     number_lat_tiles = 2
     number_lon_tiles = 4
@@ -261,7 +265,7 @@ def save_VOD_standardised_anomalies():
 def save_VOD_v2_standardised_anomalies():
     variable_name = 'VODCA_CXKu'
     data_directory = '/prj/nceo/bethar/VODCA_global/VODCA_CXKu/year_files/'
-    tile_scratch_dir = 'SCRATCH_DIR/dask_tiling_workspace'
+    tile_scratch_dir = f'{SCRATCH_DIR}/dask_tiling_workspace'
     final_save_name = '/prj/nceo/bethar/SUBDROUGHT/VOD_v2_standardised_anomalies/VODCA_v2_CXKu_standardised_anomaly.nc'
     number_lat_tiles = 2
     number_lon_tiles = 4
@@ -272,7 +276,7 @@ def save_VOD_v2_standardised_anomalies():
 def save_VOD_v2_standardised_anomalies_SIFtime():
     variable_name = 'VODCA_CXKu'
     data_directory = '/prj/nceo/bethar/VODCA_global/VODCA_CXKu/year_files/'
-    tile_scratch_dir = 'SCRATCH_DIR/dask_tiling_workspace'
+    tile_scratch_dir = f'{SCRATCH_DIR}/dask_tiling_workspace'
     final_save_name = '/prj/nceo/bethar/SUBDROUGHT/VOD_v2_SIFyears_standardised_anomalies/VODCA_v2_CXKu_SIFyears_standardised_anomaly.nc'
     number_lat_tiles = 2
     number_lon_tiles = 4
@@ -283,7 +287,7 @@ def save_VOD_v2_standardised_anomalies_SIFtime():
 def save_VOD_no_surface_water_filter_standardised_anomalies():
     variable_name = 'vod'
     data_directory = '/prj/nceo/bethar/VODCA_global/filtered/X-band/'
-    tile_scratch_dir = 'SCRATCH_DIR/dask_tiling_workspace'
+    tile_scratch_dir = f'{SCRATCH_DIR}/dask_tiling_workspace'
     final_save_name = '/prj/nceo/bethar/SUBDROUGHT/VOD_v1_nofilter_standardised_anomalies/VODCA_v1_Xnofilter_standardised_anomaly.nc'
     number_lat_tiles = 2
     number_lon_tiles = 4
@@ -295,7 +299,7 @@ def save_VOD_no_surface_water_filter_standardised_anomalies():
 def save_t2m_standardised_anomalies():
     variable_name = 't2m'
     data_directory = '/prj/nceo/bethar/ERA5/2m_temperature/local_time/afternoon/'
-    tile_scratch_dir = 'SCRATCH_DIR/dask_tiling_workspace'
+    tile_scratch_dir = f'{SCRATCH_DIR}/dask_tiling_workspace'
     final_save_name = '/prj/nceo/bethar/SUBDROUGHT/T2m_standardised_anomalies/T2m_ERA5_daily_max_standardised_anomaly.nc'
     number_lat_tiles = 2
     number_lon_tiles = 4
@@ -307,7 +311,7 @@ def save_t2m_standardised_anomalies():
 def save_precip_standardised_anomalies():
     variable_name = 'precipitationCal'
     data_directory = '/prj/nceo/bethar/IMERG/regrid_p25_global/'
-    tile_scratch_dir = 'SCRATCH_DIR/dask_tiling_workspace'
+    tile_scratch_dir = f'{SCRATCH_DIR}/dask_tiling_workspace'
     final_save_name = '/prj/nceo/bethar/SUBDROUGHT/precip_standardised_anomalies/pr_IMERG_standardised_anomaly.nc'
     number_lat_tiles = 2
     number_lon_tiles = 4
@@ -318,7 +322,7 @@ def save_precip_standardised_anomalies():
 def save_mw_lst_standardised_anomalies():
     variable_name = 'lst_time_corrected'
     data_directory = '/prj/nceo/bethar/ESA_CCI_LST/MW-LST/'
-    tile_scratch_dir = 'SCRATCH_DIR/dask_tiling_workspace'
+    tile_scratch_dir = f'{SCRATCH_DIR}/dask_tiling_workspace'
     final_save_name = '/prj/nceo/bethar/SUBDROUGHT/MW-LST_standardised_anomalies/ESA_CCI_MW-LST_standardised_anomaly.nc'
     number_lat_tiles = 2
     number_lon_tiles = 4
@@ -329,7 +333,7 @@ def save_mw_lst_standardised_anomalies():
 def save_lst_t2m_diff_MW_18_standardised_anomalies():
     variable_name = 'lst-t2m_MW_18'
     data_directory = 'SCRATCH_DIR'
-    tile_scratch_dir = 'SCRATCH_DIR/dask_tiling_workspace'
+    tile_scratch_dir = f'{SCRATCH_DIR}/dask_tiling_workspace'
     final_save_name = '/prj/nceo/bethar/SUBDROUGHT/LST-T2m_MW_18_standardised_anomalies/ESA_CCI_MW-LST_diff_T2m_1800_standardised_anomaly.nc'
     number_lat_tiles = 2
     number_lon_tiles = 4
@@ -340,7 +344,7 @@ def save_lst_t2m_diff_MW_18_standardised_anomalies():
 def save_vimd_standardised_anomalies():
     variable_name = 'vimd'
     data_directory = '/prj/nceo/bethar/ERA5/vimd/local_afternoon_max/'
-    tile_scratch_dir = 'SCRATCH_DIR/dask_tiling_workspace'
+    tile_scratch_dir = f'{SCRATCH_DIR}/dask_tiling_workspace'
     final_save_name = '/prj/nceo/bethar/SUBDROUGHT/vimd_standardised_anomalies/ERA5_vimd_afternoon_max_standardised_anomaly.nc'
     number_lat_tiles = 2
     number_lon_tiles = 4
@@ -351,7 +355,7 @@ def save_vimd_standardised_anomalies():
 def save_vpd_standardised_anomalies():
     variable_name = 'vpd'
     data_directory = '/prj/nceo/bethar/ERA5/vpd/'
-    tile_scratch_dir = 'SCRATCH_DIR/dask_tiling_workspace'
+    tile_scratch_dir = f'{SCRATCH_DIR}/dask_tiling_workspace'
     final_save_name = '/prj/nceo/bethar/SUBDROUGHT/vpd_standardised_anomalies/ERA5_vpd_afternoon_mean_standardised_anomaly.nc'
     number_lat_tiles = 2
     number_lon_tiles = 4
@@ -363,7 +367,7 @@ def save_vpd_standardised_anomalies():
 def save_SIF_PK_standardised_anomalies():
     variable_name = 'SIF'
     data_directory = '/prj/nceo/bethar/GOME2-SIF/0pt25deg/PK'
-    tile_scratch_dir = 'SCRATCH_DIR/dask_tiling_workspace'
+    tile_scratch_dir = f'{SCRATCH_DIR}/dask_tiling_workspace'
     final_save_name = '/prj/nceo/bethar/SUBDROUGHT/SIF-GOME2_PK_standardised_anomalies/SIF-GOME2_PK_standardised_anomaly.nc'
     number_lat_tiles = 2
     number_lon_tiles = 4
@@ -374,7 +378,7 @@ def save_SIF_PK_standardised_anomalies():
 def save_CERES_net_standardised_anomalies():
     variable_name = 'net_surface_rad'
     data_directory = '/prj/nceo/bethar/CERES-rsds/all_components/net_0pt25deg/'
-    tile_scratch_dir = 'SCRATCH_DIR/dask_tiling_workspace'
+    tile_scratch_dir = f'{SCRATCH_DIR}/dask_tiling_workspace'
     final_save_name = '/prj/nceo/bethar/SUBDROUGHT/CERES_rad_standardised_anomalies/CERES_net_sfc_rad_standardised_anomaly.nc'
     number_lat_tiles = 2
     number_lon_tiles = 4
@@ -385,7 +389,7 @@ def save_CERES_net_standardised_anomalies():
 def save_CERES_sw_down_standardised_anomalies():
     variable_name = 'downwelling_surface_sw_rad'
     data_directory = '/prj/nceo/bethar/CERES-rsds/all_components/sw_down_0pt25deg/'
-    tile_scratch_dir = 'SCRATCH_DIR/dask_tiling_workspace'
+    tile_scratch_dir = f'{SCRATCH_DIR}/dask_tiling_workspace'
     final_save_name = '/prj/nceo/bethar/SUBDROUGHT/CERES_sw_down_rad_standardised_anomalies/CERES_sw_down_sfc_rad_standardised_anomaly.nc'
     number_lat_tiles = 2
     number_lon_tiles = 4
@@ -396,8 +400,19 @@ def save_CERES_sw_down_standardised_anomalies():
 def save_GLEAM_evap_standardised_anomalies():
     variable_name = 'E'
     data_directory = '/prj/nceo/bethar/GLEAMv38a/E/'
-    tile_scratch_dir = 'SCRATCH_DIR/dask_tiling_workspace'
-    final_save_name = '/prj/nceo/bethar/SUBDROUGHT/GLEAM_E_standardised_anomalies/GLEAM_E_standardised_anomaly.nc'
+    tile_scratch_dir = f'{SCRATCH_DIR}/dask_tiling_workspace'
+    final_save_name = '/prj/nceo/bethar/SUBDROUGHT/GLEAM_E_v38a_testrepl_standardised_anomalies/GLEAM_E_v38a_testrepl_standardised_anomaly.nc'
+    number_lat_tiles = 2
+    number_lon_tiles = 4
+    save_standardised_anomalies(data_directory, variable_name, tile_scratch_dir, final_save_name,
+                                number_lat_tiles, number_lon_tiles, save_by_year=True, cleanup=True)
+    
+
+def save_GLEAM_v4_evap_standardised_anomalies():
+    variable_name = 'E'
+    data_directory = '/prj/nceo/bethar/GLEAMv42a/0pt25deg/E/'
+    tile_scratch_dir = f'{SCRATCH_DIR}/dask_tiling_workspace'
+    final_save_name = '/prj/nceo/bethar/SUBDROUGHT/GLEAM_v42a_E_standardised_anomalies/GLEAM_E_standardised_anomaly.nc'
     number_lat_tiles = 2
     number_lon_tiles = 4
     save_standardised_anomalies(data_directory, variable_name, tile_scratch_dir, final_save_name,
@@ -407,8 +422,19 @@ def save_GLEAM_evap_standardised_anomalies():
 def save_GLEAM_RZSM_standardised_anomalies():
     variable_name = 'SMroot'
     data_directory = '/prj/nceo/bethar/GLEAMv38a/SMroot/'
-    tile_scratch_dir = 'SCRATCH_DIR/dask_tiling_workspace'
+    tile_scratch_dir = f'{SCRATCH_DIR}/dask_tiling_workspace'
     final_save_name = '/prj/nceo/bethar/SUBDROUGHT/root_zone_soil_moisture_standardised_anomalies/GLEAM_standardised_anomaly.nc'
+    number_lat_tiles = 2
+    number_lon_tiles = 4
+    save_standardised_anomalies(data_directory, variable_name, tile_scratch_dir, final_save_name,
+                                number_lat_tiles, number_lon_tiles, save_by_year=True, cleanup=True)
+    
+
+def save_GLEAM_v4_RZSM_standardised_anomalies():
+    variable_name = 'SMrz'
+    data_directory = '/prj/nceo/bethar/GLEAMv42a/0pt25deg/SMrz/'
+    tile_scratch_dir = f'{SCRATCH_DIR}/dask_tiling_workspace'
+    final_save_name = '/prj/nceo/bethar/SUBDROUGHT/root_zone_soil_moisture_v42a_tandardised_anomalies/GLEAM_v42a_standardised_anomaly.nc'
     number_lat_tiles = 2
     number_lon_tiles = 4
     save_standardised_anomalies(data_directory, variable_name, tile_scratch_dir, final_save_name,
@@ -418,7 +444,7 @@ def save_GLEAM_RZSM_standardised_anomalies():
 def save_GLEAM_SSM_standardised_anomalies():
     variable_name = 'SMsurf'
     data_directory = '/prj/nceo/bethar/GLEAMv38a/SMsurf/'
-    tile_scratch_dir = 'SCRATCH_DIR/dask_tiling_workspace'
+    tile_scratch_dir = f'{SCRATCH_DIR}/dask_tiling_workspace'
     final_save_name = '/prj/nceo/bethar/SUBDROUGHT/GLEAM_surface_soil_moisture_standardised_anomalies/GLEAM_standardised_anomaly.nc'
     number_lat_tiles = 2
     number_lon_tiles = 4
@@ -429,7 +455,7 @@ def save_GLEAM_SSM_standardised_anomalies():
 def save_wind_speed_standardised_anomalies():
     variable_name = 'wind_speed'
     data_directory = '/prj/nceo/bethar/ERA5/wind10m/'
-    tile_scratch_dir = 'SCRATCH_DIR/dask_tiling_workspace'
+    tile_scratch_dir = f'{SCRATCH_DIR}/dask_tiling_workspace'
     final_save_name = '/prj/nceo/bethar/SUBDROUGHT/wind_speed_10m_standardised_anomalies/ERA5_wind_speed_10m_afternoon_mean_standardised_anomaly.nc'
     number_lat_tiles = 2
     number_lon_tiles = 4
@@ -439,6 +465,6 @@ def save_wind_speed_standardised_anomalies():
 
 if __name__ == '__main__':
     start = time.time()
-    save_VOD_v2_standardised_anomalies_SIFtime()
+    save_GLEAM_evap_standardised_anomalies()
     end = time.time()
     print(f'TOTAL PROCESSING TIME: {end-start:.2f} seconds')
