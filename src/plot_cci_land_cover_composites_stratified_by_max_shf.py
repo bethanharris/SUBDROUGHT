@@ -69,6 +69,13 @@ variable_colours = {'ssm_pentad_means': 'k',
                     'vpd': 'purple'
                     }
 
+fixed_ylims = {'tdiff_aqua': [-0.2, 0.97],
+         'lst_aqua': [-0.2, 0.97],
+         't2m': [-0.2, 0.97],
+         'ssm_pentad_means': [-1.61, 0.17],
+         'rzsm': [-1.61, 0.17],
+         'SESR_ERA5': [-1.61, 0.17]}
+
 
 def compare_quartiles_by_variable_main_fig(land_cover, show=True, smooth=False, save_name=None):
     variables_to_plot = ['tdiff_aqua', 'lst_aqua', 't2m', 'evap', 'rad', 'sw_down','ssm_pentad_means', 'rzsm', 'SESR_ERA5', 'vod_v2', 'SIF_PK', 'precip']
@@ -99,6 +106,10 @@ def compare_quartiles_by_variable_main_fig(land_cover, show=True, smooth=False, 
         title_size = 16 if v=='tdiff_aqua' else 18
         ax.set_title(f'$\\bf{{({alphabet[i]})}}$ {variable_legend_labels[v]}', fontsize=title_size, color=variable_colours[v])
         ax.tick_params(labelsize=16)
+        ylims = ax.get_ylim()
+        print(v, ylims)
+        if v in fixed_ylims.keys():
+            ax.set_ylim(fixed_ylims[v])
         ax.axhline(color='gray', linewidth=0.5)
         ax.axvline(color='gray', linewidth=0.5)
         ax.set_xlim([-120, 120])
@@ -151,6 +162,8 @@ def compare_quartiles_by_variable_supp_fig(land_cover, show=True, smooth=False, 
             ax.legend(loc='best', fontsize=13)
         title_size = 16 if v=='tdiff_aqua' else 18
         ax.set_title(f'$\\bf{{({alphabet[i]})}}$ {variable_legend_labels[v]}', fontsize=title_size, color=variable_colours[v])
+        ylims = ax.get_ylim()
+        print(v, ylims)
         ax.tick_params(labelsize=16)
         ax.axhline(color='gray', linewidth=0.5)
         ax.axvline(color='gray', linewidth=0.5)
@@ -176,5 +189,5 @@ def compare_quartiles_by_variable_supp_fig(land_cover, show=True, smooth=False, 
         plt.show()
 
 if __name__ == '__main__':
-    compare_quartiles_by_variable_main_fig('all_cropland_rainfed', show=False, smooth=True, save_name='_composites_stratified_by_max_shf_mainfig_mask20pct')
-    compare_quartiles_by_variable_supp_fig('all_cropland_rainfed', show=False, smooth=True, save_name='_composites_stratified_by_max_shf_suppfig_mask20pct')
+    compare_quartiles_by_variable_main_fig('all_cropland_rainfed', show=False, smooth=True, save_name='_composites_stratified_by_max_shf_mainfig_mask20pct_GLEAMv4_fixERA5SESR_shareaxes')
+    compare_quartiles_by_variable_supp_fig('all_cropland_rainfed', show=False, smooth=True, save_name='_composites_stratified_by_max_shf_suppfig_mask20pct_GLEAMv4_fixERA5SESR_shareaxes')
