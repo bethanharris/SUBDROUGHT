@@ -40,11 +40,11 @@ std_anom_directories = {'ssm_pentad_means': "/prj/nceo/bethar/SUBDROUGHT/soil_mo
                         'vod_v2': "/prj/nceo/bethar/SUBDROUGHT/VOD_v2_standardised_anomalies/",
                         'vod_v1_nofilter': "/prj/nceo/bethar/SUBDROUGHT/VOD_v1_nofilter_standardised_anomalies/",
                         'vpd': "/prj/nceo/bethar/SUBDROUGHT/vpd_standardised_anomalies/",
-                        'rzsm': "/prj/nceo/bethar/SUBDROUGHT/root_zone_soil_moisture_standardised_anomalies/",
+                        'rzsm': "/prj/nceo/bethar/SUBDROUGHT/root_zone_soil_moisture_v42a_standardised_anomalies/",
                         'rzsm_cci': "/prj/nceo/bethar/SUBDROUGHT/ESA_CCI_RZSM_standardised_anomalies/1m/",
                         'rzsm_cci_10cm': "/prj/nceo/bethar/SUBDROUGHT/ESA_CCI_RZSM_standardised_anomalies/10cm/",
                         't2m': "/prj/nceo/bethar/SUBDROUGHT/T2m_standardised_anomalies/",
-                        'evap': "/prj/nceo/bethar/SUBDROUGHT/GLEAM_E_standardised_anomalies/",
+                        'evap': "/prj/nceo/bethar/SUBDROUGHT/GLEAM_v42a_E_standardised_anomalies/",
                         'lst_mw': "/prj/nceo/bethar/SUBDROUGHT/MW-LST_standardised_anomalies/",
                         'precip': "/prj/nceo/bethar/SUBDROUGHT/precip_standardised_anomalies/",
                         'wind_speed': "/prj/nceo/bethar/SUBDROUGHT/wind_speed_10m_standardised_anomalies/",
@@ -52,8 +52,8 @@ std_anom_directories = {'ssm_pentad_means': "/prj/nceo/bethar/SUBDROUGHT/soil_mo
                         'vimd_mean': '/prj/nceo/bethar/SUBDROUGHT/vimd_standardised_anomalies/mean/',
                         'sw_down': '/prj/nceo/bethar/SUBDROUGHT/CERES_sw_down_rad_standardised_anomalies/',
                         'rad': '/prj/nceo/bethar/SUBDROUGHT/CERES_rad_standardised_anomalies/',
-                        'SESR_GLEAM': '/prj/nceo/bethar/SUBDROUGHT/GLEAM_SESR/',
-                        'SESR_ERA5': '/prj/nceo/bethar/SUBDROUGHT/GLEAM_SESR/',
+                        'SESR_GLEAM': '/prj/nceo/bethar/SUBDROUGHT/GLEAM_v4_SESR/',
+                        'SESR_ERA5': '/prj/nceo/bethar/SUBDROUGHT/ERA5_SESR/single_precision/',
                         'SIF_JJ': '/prj/nceo/bethar/SUBDROUGHT/SIF-GOME2_JJ_standardised_anomalies/',
                         'SIF_PK': '/prj/nceo/bethar/SUBDROUGHT/SIF-GOME2_PK_standardised_anomalies/'
                         }
@@ -66,7 +66,7 @@ netcdf_variable_names = {'ssm_pentad_means': 'sm',
                          'vod_v1_nofilter': 'vod',
                          'vod_v2': 'VODCA_CXKu',
                          'vpd': 'vpd',
-                         'rzsm': 'SMroot',
+                         'rzsm': 'SMrz',
                          'rzsm_cci': 'rzsm_1m',
                          'rzsm_cci_10cm': 'rzsm_10cm',
                          't2m': 't2m',
@@ -278,7 +278,7 @@ def save_single_composite_for_land_cover(variable_abbrev, land_cover='all'):
 
 
 def save_all_composites(land_cover='all'):
-    for variable_abbrev in ['t2m', 'evap', 'rad', 'sw_down', 'ssm_pentad_means', 'rzsm', 'SESR_ERA5', 'vod_v2', 'SIF_PK', 'precip', 'SESR_GLEAM', 'tdiff_mw_18', 'lst_mw', 'SESR_GLEAM', 'SIF_JJ', 'wind_speed', 'vpd']:
+    for variable_abbrev in ['t2m', 'evap', 'rad', 'sw_down', 'ssm_pentad_means', 'rzsm', 'SESR_ERA5', 'vod_v2', 'SIF_PK', 'precip', 'SESR_GLEAM', 'tdiff_mw_18', 'lst_mw', 'SIF_JJ', 'wind_speed', 'vpd']:
         save_single_composite_for_land_cover(variable_abbrev, land_cover=land_cover)
 
 
