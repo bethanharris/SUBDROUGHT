@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
 from cartopy.mpl.ticker import LongitudeFormatter, LatitudeFormatter
 from plot_utils import binned_cmap
+from dask.diagnostics import ProgressBar
 
 
 lc = xr.open_dataset("/prj/nceo/bethar/CCI_landcover/0pt25deg/CCI_land_cover_0pt25deg_2020.nc")
@@ -18,6 +19,12 @@ masked_global_lcc_indexed = np.copy(masked_global_lcc)
 for i, lc_code in enumerate(list_class_codes):
     masked_global_lcc_indexed[masked_global_lcc==lc_code] = i
 
+
+fd = xr.open_dataset("/prj/nceo/bethar/SUBDROUGHT/HESS_paper/subseasonal_drought_development_events_mask_frozen.nc", chunks={'time': -1, 'latitude': 40, 'longitude': 40})
+fd_in_px = fd.sm.sum('time')
+with ProgressBar():
+    no_fd = (fd_in_px.data.compute() == 0)
+masked_global_lcc_indexed[no_fd] = np.nan
 
 px_deg = 0.25
 n_classes = len(list_class_codes)
@@ -46,6 +53,6 @@ ax.xaxis.set_major_formatter(lon_formatter)
 ax.yaxis.set_major_formatter(lat_formatter)
 ax.tick_params(labelsize=14)
 ax.tick_params(axis='x', pad=5)
-plt.savefig(f'../figures/top_4_lcs.png', dpi=600, bbox_inches='tight')
-plt.savefig(f'../figures/top_4_lcs.pdf', dpi=600, bbox_inches='tight')
+plt.savefig(f'../figures/top_4_lcs_fd_px_only.png', dpi=600, bbox_inches='tight')
+plt.savefig(f'../figures/top_4_lcs_fd_px_only.pdf', dpi=600, bbox_inches='tight')
 plt.show()
