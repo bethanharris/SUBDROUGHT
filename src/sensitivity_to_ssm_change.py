@@ -2,6 +2,7 @@ import numpy as np
 import numpy.ma as ma
 import xarray as xr
 import os
+import pandas as pd
 import calendar
 from tqdm import tqdm
 import multiprocessing
@@ -10,10 +11,10 @@ from multiprocessing import Pool, RawArray
 
 # config section
 area_deg = 2.5
-save_dir = '/prj/nceo/bethar/SUBDROUGHT/HESS_paper/sensitivity/T2m_sensitivity'
-sensitivity_variable_std_anom_dir = "/prj/nceo/bethar/SUBDROUGHT/T2m_standardised_anomalies/"
-sensitivity_variable_name = 't2m'
-variable_increases_during_drought = True
+save_dir = '/prj/nceo/bethar/SUBDROUGHT/HESS_paper/sensitivity/VOD_v2_sensitivity_smoothed_n100/'
+sensitivity_variable_std_anom_dir = "/prj/nceo/bethar/SUBDROUGHT/VOD_v2_standardised_anomalies/"
+sensitivity_variable_name = 'VODCA_CXKu'
+variable_increases_during_drought = False
 
 # load drought days, SSM & sensitivity variable standardised anomalies
 drought_events = xr.open_dataset("/prj/nceo/bethar/SUBDROUGHT/HESS_paper/subseasonal_drought_development_events_mask_frozen.nc")
@@ -102,21 +103,25 @@ def compute_coarse_gridbox(coords):
     sensitivity_variable_coarse_gridbox = sensitivity_variable_std_anom_data[:, i*px:(i+1)*px, j*px:(j+1)*px]
     _, ssm_composite, ssm_n = composite_events(droughts_coarse_gridbox, ssm_coarse_gridbox, days_range=60)
     _, sensitivity_variable_composite, sensitivity_variable_n = composite_events(droughts_coarse_gridbox, sensitivity_variable_coarse_gridbox, days_range=60)
-    enough_obs_before = (np.nansum(ssm_n[0:31])>50) and (np.nansum(sensitivity_variable_n[0:31])>50) #require both vars to have 50 obs from day -60 to -30
-    enough_obs_after = (np.nanmax(ssm_n[60:]) > 20) and (np.nanmax(sensitivity_variable_n[60:]) > 20) #require both to have some day after onset with 20 obs in composite
+    ssm_composite_smoothed = pd.Series(ssm_composite).rolling(window=5, min_periods=1, center=True).mean().to_numpy()
+    ssm_n_smoothed = pd.Series(ssm_n).rolling(window=5, min_periods=1, center=True).sum().to_numpy()
+    sensitivity_variable_composite_smoothed = pd.Series(sensitivity_variable_composite).rolling(window=5, min_periods=1, center=True).mean().to_numpy()
+    sensitivity_variable_n_smoothed = pd.Series(sensitivity_variable_n).rolling(window=5, min_periods=1, center=True).sum().to_numpy()
+    enough_obs_before = (np.nansum(ssm_n[0:31])>100) and (np.nansum(sensitivity_variable_n[0:31])>100) #require both vars to have 50 obs from day -60 to -30
+    enough_obs_after = (np.nanmax(ssm_n_smoothed[60:]) > 100) and (np.nanmax(sensitivity_variable_n_smoothed[60:]) > 100) #require both to have some day after onset with 20 obs in composite
     if (enough_obs_before and enough_obs_after):
-        ssm_composite[60:][ssm_n[60:]<20] = np.nan #mask days after onset with not enough obs in composite
-        sensitivity_variable_composite[60:][sensitivity_variable_n[60:]<20] = np.nan
+        ssm_composite_smoothed[60:][ssm_n_smoothed[60:]<100] = np.nan #mask days after onset with not enough obs in composite
+        sensitivity_variable_composite_smoothed[60:][sensitivity_variable_n_smoothed[60:]<100] = np.nan
         ssm_before = np.nanmean(ssm_composite[0:31]) #baseline anomaly is mean from day -60 to -30
         sensitivity_variable_before = np.nanmean(sensitivity_variable_composite[0:31])
-        ssm_after = np.nanmin(ssm_composite[60:]) # value for "after" is minimum after onset (has to be based on >=20 obs)
+        ssm_after = np.nanmin(ssm_composite_smoothed[60:]) # value for "after" is minimum after onset (has to be based on >=20 obs)
         if variable_increases_during_drought:
-            sensitivity_variable_after = np.nanmax(sensitivity_variable_composite[60:])
-            sensitivity_variable_peak_idx = np.nanargmax(sensitivity_variable_composite[60:])
+            sensitivity_variable_after = np.nanmax(sensitivity_variable_composite_smoothed[60:])
+            sensitivity_variable_peak_idx = np.nanargmax(sensitivity_variable_composite_smoothed[60:])
         else:
-            sensitivity_variable_after = np.nanmin(sensitivity_variable_composite[60:])
-            sensitivity_variable_peak_idx = np.nanargmin(sensitivity_variable_composite[60:])
-        n = sensitivity_variable_n[60:][sensitivity_variable_peak_idx]
+            sensitivity_variable_after = np.nanmin(sensitivity_variable_composite_smoothed[60:])
+            sensitivity_variable_peak_idx = np.nanargmin(sensitivity_variable_composite_smoothed[60:])
+        n = sensitivity_variable_n_smoothed[60:][sensitivity_variable_peak_idx]
         sensitivity = (sensitivity_variable_after - sensitivity_variable_before)/(ssm_after - ssm_before)
     else:
         sensitivity = np.nan
@@ -169,6 +174,7 @@ if __name__ == '__main__':
             drought_events_data = drought_events_tile.data
             ssm_std_anom_data = ssm_std_anoms_tile.data.compute()
             sensitivity_variable_std_anom_data = sensitivity_variable_std_anoms_tile.data.compute()
+            print('LOADED STUFF')
 
             lat_coarse_gridboxes = int(np.ceil(drought_events_tile.latitude.size * 0.25/float(area_deg)))
             lon_coarse_gridboxes = int(np.ceil(drought_events_tile.longitude.size * 0.25/float(area_deg)))
